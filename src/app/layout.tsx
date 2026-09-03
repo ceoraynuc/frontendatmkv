@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Figtree } from "next/font/google";
 import "./globals.css";
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
