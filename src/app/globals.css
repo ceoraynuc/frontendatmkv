@@ -1,54 +1,81 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-primary-350: #22a26b;   /* brighter green, made specifically for dark mode accents */
   --font-sans: var(--font-figtree);
 
   --color-primary-50:  #e6f2ec;
   --color-primary-100: #cce6da;
   --color-primary-300: #66a887;
+  --color-primary-400: #3d9268;
   --color-primary-500: #1a7a4d;
   --color-primary-600: #0d7040;
-  --color-primary-700: #006634;   /* exact brand green */
+  --color-primary-700: #006634;
   --color-primary-800: #00522a;
   --color-primary-900: #003d20;
 
   --color-secondary-50:  #e7f1f7;
   --color-secondary-100: #cde3ef;
   --color-secondary-300: #5a9bc4;
+  --color-secondary-400: #3a8cb8;
   --color-secondary-500: #1878ab;
-  --color-secondary-600: #0a6294;  /* exact brand blue */
+  --color-secondary-600: #0a6294;
   --color-secondary-700: #084d76;
+  --color-secondary-900: #052f47;
 
   --color-accent-100: #fff8e5;
-  --color-accent-200: #fdeeb7;     /* exact brand cream */
+  --color-accent-200: #fdeeb7;
   --color-accent-300: #fff0b5;
+  --color-accent-900: #4a3c1a;
 }
 
 * {
   font-family: var(--font-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background-color: #f9fafb;
+  color: #171717;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark body {
+  background-color: #030712;
+  color: #ededed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 150ms ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 150ms ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 200ms ease-out;
+}
+
+button:not(:disabled) {
+  transition: transform 100ms ease, background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
 }
