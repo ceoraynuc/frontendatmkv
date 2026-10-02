@@ -1,8 +1,9 @@
+
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Figtree } from "next/font/google";
+import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
+import { LayoutShell } from "./layout-shell";
 
 const figtree = Figtree({
   subsets: ["latin"],
@@ -20,17 +21,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mkvians Frontend",
-  description: "Simple Mkvians landing page",
+   title: "MK Volunteers Portal",
+  description: "Student, Volunteer, and Admin portal for MK Volunteers",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className={`${figtree.variable} antialiased`}>
+        <LayoutShell>{children}</LayoutShell>
+      </body>
     </html>
   );
 }
