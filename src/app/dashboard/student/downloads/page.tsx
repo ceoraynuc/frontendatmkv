@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Download, FileText, Image as ImageIcon, Eye, Search } from "lucide-react";
-import { mockDownloads, DownloadFile } from "../../../lib/mockDownloads";
+import { mockDownloads, DownloadFile } from "../../../../lib/mockDownloads";
 
 const filters = ["All", "Notes", "Past Paper", "Guess Paper"] as const;
 

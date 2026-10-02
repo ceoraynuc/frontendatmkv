@@ -1,12 +1,10 @@
 // src/lib/types.ts
 //
-// ─────────────────────────────────────────────────────────────────
-// SHARED TYPES — used by frontend and backend
-// Backend developer: implement endpoints returning these shapes.
-// ─────────────────────────────────────────────────────────────────
+// VERSION 1 — Student + Admin only
+// (Volunteer portal, manager, projects, Q&A, resources → V2)
 
 // ═══════════════════════════════════════════════════════════════
-// API RESULT WRAPPER
+// API RESULT
 // ═══════════════════════════════════════════════════════════════
 
 export type ApiResult<T> =
@@ -14,37 +12,18 @@ export type ApiResult<T> =
   | { success: false; error: string };
 
 // ═══════════════════════════════════════════════════════════════
-// ROLES & PERMISSIONS
+// ROLES
 // ═══════════════════════════════════════════════════════════════
 
-export type Role =
-  | "student"
-  | "volunteer"
-  | "manager"        // admin of a team
-  | "super_admin";   // FLT / top level
+export type Role = "student" | "admin" | "super_admin";
 
-/**
- * Super admin scope.
- * - "overall": full system (FLT)
- * - "11-12":   lead of 11-12 section only
- */
-export type SuperAdminScope = "overall" | "11-12";
-
-/**
- * Extra permissions that can be granted on top of primary role.
- * Example: a manager can also have "upload_content".
- */
 export type Permission =
-  | "upload_content"
-  | "create_quizzes"
-  | "manage_team"
+  | "manage_volunteers"
   | "manage_projects"
-  | "post_team_notifications"
-  | "post_global_notifications"
+  | "post_notifications"
   | "manage_subjects"
   | "manage_classes"
-  | "manage_users"
-  | "view_all_teams";
+  | "view_all_volunteers";
 
 // ═══════════════════════════════════════════════════════════════
 // USER
@@ -59,21 +38,14 @@ export interface UserProfile {
   avatarUrl: string | null;
   primaryRole: Role;
   permissions: Permission[];
-  teamIds: string[];                // teams this user belongs to
-  joinedAt: string;                 // ISO date
-  lastActiveAt: string;             // ISO date
+  teamIds: string[];
+  joinedAt: string;
+  lastActiveAt: string;
   isActive: boolean;
 
-  // Super admin only
-  superAdminScope?: SuperAdminScope;
-
-  // Student only
+  // Student-specific
   grade?: string;
   enrolledSubjectIds?: string[];
-
-  // Volunteer / Manager only
-  qualification?: string;
-  bio?: string;
 }
 
 export type UserProfileUpdate = Partial<
@@ -84,28 +56,9 @@ export type UserProfileUpdate = Partial<
     | "phone"
     | "city"
     | "grade"
-    | "qualification"
-    | "bio"
     | "enrolledSubjectIds"
   >
 >;
-
-// ═══════════════════════════════════════════════════════════════
-// TEAMS
-// ═══════════════════════════════════════════════════════════════
-
-export type TeamType = "school" | "admission";
-
-export interface Team {
-  id: string;
-  name: string;                     // "9-10 Physics", "Admission"
-  type: TeamType;
-  classRange: string | null;        // "9-10", "11-12", null for admission
-  subjectId: string | null;         // null for admission
-  managerIds: string[];             // usually 1
-  memberIds: string[];              // volunteers
-  createdAt: string;
-}
 
 // ═══════════════════════════════════════════════════════════════
 // SUBJECTS / CHAPTERS / VIDEOS
@@ -115,7 +68,7 @@ export interface Video {
   id: string;
   title: string;
   durationSeconds: number;
-  videoUrl: string;
+  videoUrl: string;             // YouTube URL or direct link
   thumbnailUrl: string | null;
 }
 
@@ -129,7 +82,7 @@ export interface Subject {
   id: string;
   name: string;
   description: string;
-  grade: string;                    // "9-10", "11-12"
+  grade: string;                // "9-10", "11-12"
   thumbnailUrl: string | null;
   chapters: Chapter[];
 }
@@ -162,8 +115,6 @@ export interface Quiz {
   dueDate: string | null;
   durationMinutes: number;
   questions: QuizQuestion[];
-  createdBy: string;                // volunteer/manager id
-  createdAt: string;
 }
 
 export interface QuizAttempt {
@@ -177,120 +128,7 @@ export interface QuizAttempt {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RESOURCES (University, Admission, Past Papers, Guess Papers)
-// ═══════════════════════════════════════════════════════════════
-
-export type ResourceCategory =
-  | "school"          // notes, videos for 9-12
-  | "university"      // uni admission guides
-  | "admission"       // interview, entry test
-  | "general";        // random uploads
-
-export type ResourceType =
-  | "video"
-  | "notes"
-  | "quiz"
-  | "past-paper"
-  | "guess-paper"
-  | "interview-guide"
-  | "book"
-  | "other";
-
-export type ResourceFormat = "pdf" | "video" | "article" | "link" | "image" | "zip";
-
-export interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  category: ResourceCategory;
-  resourceType: ResourceType;
-  format: ResourceFormat;
-  url: string;
-  thumbnailUrl: string | null;
-  subjectId: string | null;
-  classRange: string | null;
-  tags: string[];
-  uploadedBy: string;
-  uploadedAt: string;
-  downloads: number;
-  sizeBytes: number | null;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PROJECTS / INITIATIVES
-// ═══════════════════════════════════════════════════════════════
-
-export type ProjectStatus = "upcoming" | "active" | "completed" | "cancelled";
-
-export type ProjectRole =
-  | "teacher"
-  | "coordinator"
-  | "content-creator"
-  | "mentor"
-  | "organizer"
-  | "member";
-
-export type ParticipationStatus =
-  | "assigned"
-  | "in-progress"
-  | "completed"
-  | "dropped";
-
-export interface ProjectParticipant {
-  userId: string;
-  userName: string;
-  role: ProjectRole;
-  hoursContributed: number;
-  status: ParticipationStatus;
-  joinedAt: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string | null;
-  status: ProjectStatus;
-  teamIds: string[];
-  createdBy: string;
-  createdAt: string;
-  participants: ProjectParticipant[];
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Q&A  (Phase 1: internal only. Phase 2: public for students.)
-// ═══════════════════════════════════════════════════════════════
-
-export type QuestionScope = "internal" | "public";
-
-export interface Answer {
-  id: string;
-  questionId: string;
-  body: string;
-  answeredBy: string;
-  answeredByName: string;
-  upvotes: number;
-  isAccepted: boolean;
-  createdAt: string;
-}
-
-export interface Question {
-  id: string;
-  title: string;
-  body: string;
-  scope: QuestionScope;
-  teamId: string | null;            // null = general
-  askedBy: string;
-  askedByName: string;
-  tags: string[];
-  answers: Answer[];
-  views: number;
-  createdAt: string;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// DOWNLOADS (kept for compatibility with existing pages)
+// DOWNLOADS
 // ═══════════════════════════════════════════════════════════════
 
 export interface DownloadFile {
@@ -306,33 +144,7 @@ export interface DownloadFile {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════════════════════
-
-export type NotificationType =
-  | "quiz"
-  | "video"
-  | "download"
-  | "project"
-  | "system"
-  | "achievement"
-  | "announcement";
-
-export interface AppNotification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  body: string;
-  link: string | null;
-  targetRoles: Role[] | null;       // null = everyone
-  targetTeamIds: string[] | null;   // null = all teams
-  createdBy: string;
-  readBy: string[];                 // user IDs
-  createdAt: string;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PROGRESS / STATS / ACTIVITY
+// STATS
 // ═══════════════════════════════════════════════════════════════
 
 export interface NextVideo {
@@ -353,32 +165,46 @@ export interface ProfileStats {
   nextVideo: NextVideo | null;
 }
 
-export interface ActivityItem {
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+
+export type NotificationType =
+  | "quiz"
+  | "video"
+  | "download"
+  | "system"
+  | "announcement";
+
+export interface AppNotification {
   id: string;
   type: NotificationType;
-  text: string;
-  timestamp: string;
+  title: string;
+  body: string;
+  link: string | null;
+  targetRoles: Role[] | null;
+  targetTeamIds: string[] | null;
+  createdBy: string;
+  readBy: string[];
+  createdAt: string;
 }
 
-export interface WeeklyStudyHours {
-  day: string;
-  hours: number;
-}
+// ═══════════════════════════════════════════════════════════════
+// ADMIN-SPECIFIC (Volunteer track record for admin view)
+// ═══════════════════════════════════════════════════════════════
 
-/**
- * Volunteer / Manager track record.
- * Used by managers and admins to see participation.
- */
-export interface VolunteerStats {
+export interface VolunteerTrackRecord {
   userId: string;
   userName: string;
-  videosUploaded: number;
-  notesUploaded: number;
-  quizzesCreated: number;
+  email: string;
+  city: string;
+  teamNames: string[];
   projectsJoined: number;
   projectsCompleted: number;
   totalHoursContributed: number;
-  studentsHelped: number;
+  joinedAt: string;
+  lastActiveAt: string;
+  isActive: boolean;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -394,10 +220,8 @@ export interface RegisterPayload {
   fullName: string;
   email: string;
   password: string;
-  role: Role;                       // who is registering
-  grade?: string;                   // if student
-  qualification?: string;           // if volunteer
-  invitedBy?: string;               // if volunteer (manager id)
+  grade?: string;               // student
+  role: Role;
 }
 
 export interface AuthSession {
